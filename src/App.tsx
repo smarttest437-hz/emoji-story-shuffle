@@ -1,0 +1,264 @@
+import { useState, useCallback, useEffect } from 'react';
+import confetti from 'canvas-confetti';
+import { Header } from './components/Header';
+import { EmojiPanel } from './components/EmojiPanel';
+import { StoryEditor } from './components/StoryEditor';
+import { Timer } from './components/Timer';
+import { Toolbar } from './components/Toolbar';
+import { EMOJI_SEED } from './lib/emojis';
+import { getRandomEmojis, useLocalStorage, getSeedFromURL } from './lib/utils';
+
+const DEFAULT_TIMER_SECONDS = 90;
+const MIN_WORDS = 80;
+const MAX_WORDS = 120;
+
+interface AppState {
+  emojis: string[];
+  lockedIndices: number[];
+  emojiCount: 3 | 4 | 5;
+  story: string;
+  timerSeconds: number;
+  timerRunning: boolean;
+  darkMode: boolean;
+}
+
+const initialState: AppState = {
+  emojis: getRandomEmojis(EMOJI_SEED, 3),
+  lockedIndices: [],
+  emojiCount: 3,
+  story: '',
+  timerSeconds: DEFAULT_TIMER_SECONDS,
+  timerRunning: false,
+  darkMode: false,
+};
+
+function App() {
+  // Load state from localStorage or use initial state
+  const [state, setState] = useLocalStorage<AppState>('emoji-story-state', initialState);
+  const [animating, setAnimating] = useState(false);
+
+  // Apply dark mode class to body
+  useEffect(() => {
+    if (state.darkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+  }, [state.darkMode]);
+
+  // Handle timer tick
+  const handleTimerTick = useCallback(() => {
+    setState((prev) => {
+      const newSeconds = Math.max(0, prev.timerSeconds - 1);
+      if (newSeconds === 0) {
+        // Timer ended - trigger confetti
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+        });
+        return { ...prev, timerSeconds: 0, timerRunning: false };
+      }
+      return { ...prev, timerSeconds: newSeconds };
+    });
+  }, [setState]);
+
+  // Toggle emoji lock
+  const handleToggleLock = useCallback((index: number) => {
+    setState((prev) => {
+      const locked = new Set(prev.lockedIndices);
+      if (locked.has(index)) {
+        locked.delete(index);
+      } else {
+        locked.add(index);
+      }
+      return { ...prev, lockedIndices: Array.from(locked) };
+    });
+  }, [setState]);
+
+  // Shuffle unlocked emojis
+  const handleShuffle = useCallback(() => {
+    setAnimating(true);
+    setTimeout(() => {
+      setState((prev) => {
+        const locked = new Set(prev.lockedIndices);
+        const newEmojis = [...prev.emojis];
+        const seed = getSeedFromURL();
+
+        // Generate new emojis for unlocked positions
+        for (let i = 0; i < prev.emojiCount; i++) {
+          if (!locked.has(i)) {
+            const randomEmojis = getRandomEmojis(EMOJI_SEED, 1, new Set(), seed + i);
+            newEmojis[i] = randomEmojis[0];
+          }
+        }
+
+        return { ...prev, emojis: newEmojis };
+      });
+      setAnimating(false);
+    }, 300);
+  }, [setState]);
+
+  // Shuffle all emojis (unlock all first)
+  const handleShuffleAll = useCallback(() => {
+    setAnimating(true);
+    setTimeout(() => {
+      setState((prev) => {
+        const seed = getSeedFromURL();
+        const newEmojis = getRandomEmojis(EMOJI_SEED, prev.emojiCount, new Set(), seed);
+        return { ...prev, emojis: newEmojis, lockedIndices: [] };
+      });
+      setAnimating(false);
+    }, 300);
+  }, [setState]);
+
+  // Change emoji count
+  const handleChangeCount = useCallback((count: 3 | 4 | 5) => {
+    setState((prev) => {
+      if (count === prev.emojiCount) return prev;
+
+      let newEmojis = [...prev.emojis];
+      const newLocked = new Set(prev.lockedIndices);
+
+      if (count > prev.emojiCount) {
+        // Add more emojis
+        const seed = getSeedFromURL();
+        const additional = getRandomEmojis(EMOJI_SEED, count - prev.emojiCount, new Set(), seed);
+        newEmojis = [...newEmojis, ...additional];
+      } else {
+        // Remove emojis from the end
+        newEmojis = newEmojis.slice(0, count);
+        // Remove locks for removed indices
+        for (let i = count; i < prev.emojiCount; i++) {
+          newLocked.delete(i);
+        }
+      }
+
+      return {
+        ...prev,
+        emojiCount: count,
+        emojis: newEmojis,
+        lockedIndices: Array.from(newLocked),
+      };
+    });
+  }, [setState]);
+
+  // Story change
+  const handleStoryChange = useCallback((story: string) => {
+    setState((prev) => ({ ...prev, story }));
+  }, [setState]);
+
+  // Mark story done - trigger confetti
+  const handleMarkDone = useCallback(() => {
+    confetti({
+      particleCount: 150,
+      spread: 100,
+      origin: { y: 0.5 },
+      colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'],
+    });
+  }, []);
+
+  // Timer controls
+  const handleTimerStart = useCallback(() => {
+    setState((prev) => ({ ...prev, timerRunning: true }));
+  }, [setState]);
+
+  const handleTimerPause = useCallback(() => {
+    setState((prev) => ({ ...prev, timerRunning: false }));
+  }, [setState]);
+
+  const handleTimerReset = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      timerSeconds: DEFAULT_TIMER_SECONDS,
+      timerRunning: false,
+    }));
+  }, [setState]);
+
+  // New round - reset everything
+  const handleNewRound = useCallback(() => {
+    if (confirm('Start a new round? This will clear your story and reset everything.')) {
+      const seed = getSeedFromURL();
+      const newEmojis = getRandomEmojis(EMOJI_SEED, state.emojiCount, new Set(), seed);
+      setState((prev) => ({
+        ...prev,
+        emojis: newEmojis,
+        lockedIndices: [],
+        story: '',
+        timerSeconds: DEFAULT_TIMER_SECONDS,
+        timerRunning: false,
+      }));
+    }
+  }, [setState, state.emojiCount]);
+
+  // Toggle dark mode
+  const handleToggleDarkMode = useCallback(() => {
+    setState((prev) => ({ ...prev, darkMode: !prev.darkMode }));
+  }, [setState]);
+
+  return (
+    <div className="app">
+      <Header darkMode={state.darkMode} onToggleDarkMode={handleToggleDarkMode} />
+
+      <main className="main-content">
+        <div className="left-panel">
+          <EmojiPanel
+            emojis={state.emojis}
+            lockedIndices={new Set(state.lockedIndices)}
+            emojiCount={state.emojiCount}
+            animating={animating}
+            onToggleLock={handleToggleLock}
+            onShuffle={handleShuffle}
+            onShuffleAll={handleShuffleAll}
+            onChangeCount={handleChangeCount}
+          />
+
+          <Timer
+            seconds={state.timerSeconds}
+            isRunning={state.timerRunning}
+            maxSeconds={DEFAULT_TIMER_SECONDS}
+            onTick={handleTimerTick}
+            onStart={handleTimerStart}
+            onPause={handleTimerPause}
+            onReset={handleTimerReset}
+          />
+        </div>
+
+        <div className="right-panel">
+          <StoryEditor
+            story={state.story}
+            minWords={MIN_WORDS}
+            maxWords={MAX_WORDS}
+            onStoryChange={handleStoryChange}
+            onMarkDone={handleMarkDone}
+          />
+
+          <Toolbar onNewRound={handleNewRound} />
+        </div>
+      </main>
+
+      <footer className="app-footer">
+        <div className="instructions">
+          <h3>How to Play:</h3>
+          <ol>
+            <li>🎲 Generate 3-5 random emojis</li>
+            <li>🔒 Lock emojis you like, shuffle the rest</li>
+            <li>⏱️ Start the 90-second timer (optional)</li>
+            <li>✍️ Write a {MIN_WORDS}-{MAX_WORDS} word story inspired by the emojis</li>
+            <li>🎉 Mark done when you're finished!</li>
+          </ol>
+        </div>
+        <div className="keyboard-shortcuts">
+          <h4>Tips:</h4>
+          <ul>
+            <li>Use <strong>?seed=123</strong> in URL for reproducible emoji sets</li>
+            <li>Your session auto-saves to localStorage</li>
+            <li>Perfect for 10-15 minute team icebreakers!</li>
+          </ul>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+export default App;
