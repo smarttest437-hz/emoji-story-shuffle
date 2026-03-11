@@ -8,7 +8,6 @@ import { Toolbar } from './components/Toolbar';
 import { EMOJI_SEED } from './lib/emojis';
 import { getRandomEmojis, useLocalStorage, getSeedFromURL } from './lib/utils';
 
-const DEFAULT_TIMER_SECONDS = 90;
 const MIN_WORDS = 80;
 const MAX_WORDS = 120;
 
@@ -18,6 +17,7 @@ interface AppState {
   emojiCount: 3 | 4 | 5;
   story: string;
   timerSeconds: number;
+  timerDuration: 90 | 180 | 300;
   timerRunning: boolean;
   darkMode: boolean;
 }
@@ -27,7 +27,8 @@ const initialState: AppState = {
   lockedIndices: [],
   emojiCount: 3,
   story: '',
-  timerSeconds: DEFAULT_TIMER_SECONDS,
+  timerSeconds: 90,
+  timerDuration: 90,
   timerRunning: false,
   darkMode: false,
 };
@@ -167,10 +168,19 @@ function App() {
     setState((prev) => ({ ...prev, timerRunning: false }));
   }, [setState]);
 
+  const handleTimerDurationChange = useCallback((duration: 90 | 180 | 300) => {
+    setState((prev) => ({
+      ...prev,
+      timerDuration: duration,
+      timerSeconds: duration,
+      timerRunning: false,
+    }));
+  }, [setState]);
+
   const handleTimerReset = useCallback(() => {
     setState((prev) => ({
       ...prev,
-      timerSeconds: DEFAULT_TIMER_SECONDS,
+      timerSeconds: prev.timerDuration,
       timerRunning: false,
     }));
   }, [setState]);
@@ -185,7 +195,8 @@ function App() {
         emojis: newEmojis,
         lockedIndices: [],
         story: '',
-        timerSeconds: DEFAULT_TIMER_SECONDS,
+        timerDuration: 90,
+        timerSeconds: 90,
         timerRunning: false,
       }));
     }
@@ -216,7 +227,9 @@ function App() {
           <Timer
             seconds={state.timerSeconds}
             isRunning={state.timerRunning}
-            maxSeconds={DEFAULT_TIMER_SECONDS}
+            maxSeconds={state.timerDuration}
+            selectedDuration={state.timerDuration}
+            onDurationChange={handleTimerDurationChange}
             onTick={handleTimerTick}
             onStart={handleTimerStart}
             onPause={handleTimerPause}
