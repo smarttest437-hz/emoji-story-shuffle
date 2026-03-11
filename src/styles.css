@@ -421,6 +421,44 @@ body {
   gap: 12px;
 }
 
+/* Timer duration pill */
+.timer-pill {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-tertiary);
+  border-radius: 999px;
+  padding: 3px;
+  margin-bottom: 12px;
+}
+
+.timer-pill--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.timer-pill__option {
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.timer-pill__option:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.timer-pill__option--active {
+  background: var(--accent-primary);
+  color: #ffffff;
+  font-weight: 600;
+}
+
 .timer-message {
   margin-top: 12px;
   padding: 8px 16px;
