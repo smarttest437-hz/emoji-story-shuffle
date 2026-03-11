@@ -13,6 +13,12 @@ interface TimerProps {
   onReset: () => void;
 }
 
+const DURATIONS: { value: 90 | 180 | 300; label: string }[] = [
+  { value: 90,  label: '90s'   },
+  { value: 180, label: '3 min' },
+  { value: 300, label: '5 min' },
+];
+
 export const Timer: React.FC<TimerProps> = ({
   seconds,
   isRunning,
@@ -50,12 +56,6 @@ export const Timer: React.FC<TimerProps> = ({
   const progress = (seconds / maxSeconds) * 100;
   const isWarning = seconds <= 10 && seconds > 0;
   const isExpired = seconds === 0;
-
-  const DURATIONS: { value: 90 | 180 | 300; label: string }[] = [
-    { value: 90,  label: '90s'   },
-    { value: 180, label: '3 min' },
-    { value: 300, label: '5 min' },
-  ];
 
   return (
     <div className="timer-container">
@@ -100,7 +100,7 @@ export const Timer: React.FC<TimerProps> = ({
           <button
             key={value}
             className={`timer-pill__option${selectedDuration === value ? ' timer-pill__option--active' : ''}`}
-            onClick={() => !isRunning && onDurationChange(value)}
+            onClick={() => onDurationChange(value)}
             disabled={isRunning}
             aria-pressed={selectedDuration === value}
             aria-label={`Set timer to ${label}`}
