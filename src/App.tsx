@@ -256,7 +256,7 @@ function App() {
           <ol>
             <li>🎲 Generate 3-5 random emojis</li>
             <li>🔒 Lock emojis you like, shuffle the rest</li>
-            <li>⏱️ Start the 90-second timer (optional)</li>
+            <li>⏱️ Start the timer — choose 90s, 3 min, or 5 min (optional)</li>
             <li>✍️ Write a {MIN_WORDS}-{MAX_WORDS} word story inspired by the emojis</li>
             <li>🎉 Mark done when you're finished!</li>
           </ol>
