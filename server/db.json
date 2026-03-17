@@ -1,17 +1,16 @@
 {
-  "phase": "voting",
+  "phase": "submission",
   "stories": [
     {
-      "id": "32a07a52-8e48-4bdc-9a2e-1e2ad39f3d00",
+      "id": "3ee9df5f-d53d-4cd8-bc93-a1c626162c68",
       "author": "hattie",
-      "text": "I live in a tent and hear grasshopper singing beside me. A bunch of friend are playing...",
+      "text": "I want to write a story",
       "emojis": [
-        "🎯",
-        "🈵",
-        "➡️"
+        "🤕",
+        "🥦",
+        "🧉"
       ]
     }
   ],
-  "votes": [],
-  "emojis": []
+  "votes": []
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 
 type Phase = 'submission' | 'voting' | 'results';
 
@@ -44,6 +44,9 @@ export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
 
   const hasVoted = votes.some((v) => v.voterId === voterId);
 
+  const onSharedEmojisRef = useRef(onSharedEmojis);
+  onSharedEmojisRef.current = onSharedEmojis;
+
   const fetchState = useCallback(async () => {
     try {
       const res = await fetch('/api/state');
@@ -55,13 +58,13 @@ export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
       setConnecting(false);
       setPollError(false);
       if (data.emojis && data.emojis.length > 0) {
-        onSharedEmojis(data.emojis);
+        onSharedEmojisRef.current(data.emojis);
       }
     } catch {
       setConnecting(true);
       setPollError(true);
     }
-  }, [onSharedEmojis]);
+  }, []);
 
   useEffect(() => {
     fetchState();
