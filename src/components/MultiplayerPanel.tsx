@@ -73,6 +73,10 @@ export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ author: authorName, text: storyText, emojis }),
       });
+      if (res.status === 409) {
+        setSubmitted(true); // treat as already submitted — show "Story submitted!"
+        return;
+      }
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         setSubmitError(err.error ?? 'Failed to submit story.');

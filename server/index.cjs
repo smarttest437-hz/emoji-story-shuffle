@@ -36,6 +36,10 @@ app.post('/api/stories', (req, res) => {
   if (!author || !text) {
     return res.status(400).json({ error: 'author and text are required' });
   }
+  const alreadySubmitted = db.stories.some(s => s.author === author);
+  if (alreadySubmitted) {
+    return res.status(409).json({ error: 'You have already submitted a story.' });
+  }
   const story = { id: randomUUID(), author, text, emojis: emojis || [] };
   db.stories.push(story);
   try {
