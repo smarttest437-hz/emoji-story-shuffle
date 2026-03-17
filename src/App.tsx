@@ -7,6 +7,7 @@ import { Timer } from './components/Timer';
 import { Toolbar } from './components/Toolbar';
 import { EMOJI_SEED } from './lib/emojis';
 import { getRandomEmojis, useLocalStorage, getSeedFromURL } from './lib/utils';
+import { MultiplayerPanel } from './components/MultiplayerPanel';
 
 const MIN_WORDS = 80;
 const MAX_WORDS = 120;
@@ -34,6 +35,17 @@ const initialState: AppState = {
 };
 
 function App() {
+  const [authorName, setAuthorName] = useState<string>(() => localStorage.getItem('mp-name') || '');
+  const [voterId] = useState<string>(() => {
+    let id = localStorage.getItem('mp-voter-id');
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem('mp-voter-id', id);
+    }
+    return id;
+  });
+  const [nameInput, setNameInput] = useState('');
+
   // Load state from localStorage or use initial state
   const [state, setState] = useLocalStorage<AppState>('emoji-story-state', initialState);
   const [animating, setAnimating] = useState(false);
@@ -207,6 +219,32 @@ function App() {
     setState((prev) => ({ ...prev, darkMode: !prev.darkMode }));
   }, [setState]);
 
+  if (!authorName) {
+    return (
+      <div className="name-entry">
+        <h2>Welcome to Emoji Story Shuffle!</h2>
+        <p>Enter your name to join</p>
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          const trimmed = nameInput.trim();
+          if (!trimmed) return;
+          localStorage.setItem('mp-name', trimmed);
+          setAuthorName(trimmed);
+        }}>
+          <input
+            type="text"
+            value={nameInput}
+            onChange={(e) => setNameInput(e.target.value)}
+            placeholder="Your name"
+            autoFocus
+            maxLength={50}
+          />
+          <button type="submit" disabled={!nameInput.trim()}>Join</button>
+        </form>
+      </div>
+    );
+  }
+
   return (
     <div className="app">
       <Header darkMode={state.darkMode} onToggleDarkMode={handleToggleDarkMode} />
@@ -244,6 +282,13 @@ function App() {
             maxWords={MAX_WORDS}
             onStoryChange={handleStoryChange}
             onMarkDone={handleMarkDone}
+          />
+
+          <MultiplayerPanel
+            authorName={authorName}
+            voterId={voterId}
+            storyText={state.story}
+            emojis={state.emojis}
           />
 
           <Toolbar onNewRound={handleNewRound} />
