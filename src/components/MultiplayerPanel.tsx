@@ -19,6 +19,7 @@ interface MultiplayerPanelProps {
   voterId: string;
   storyText: string;
   emojis: string[];
+  onSharedEmojis: (emojis: string[]) => void;
 }
 
 export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
@@ -26,6 +27,7 @@ export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
   voterId,
   storyText,
   emojis,
+  onSharedEmojis,
 }) => {
   const [phase, setPhase] = useState<Phase>('submission');
   const [stories, setStories] = useState<Story[]>([]);
@@ -52,11 +54,14 @@ export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
       setVotes(data.votes);
       setConnecting(false);
       setPollError(false);
+      if (data.emojis && data.emojis.length > 0) {
+        onSharedEmojis(data.emojis);
+      }
     } catch {
       setConnecting(true);
       setPollError(true);
     }
-  }, []);
+  }, [onSharedEmojis]);
 
   useEffect(() => {
     fetchState();

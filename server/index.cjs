@@ -94,9 +94,25 @@ app.post('/api/phase', (req, res) => {
   res.json({ phase: db.phase });
 });
 
+// POST /api/emojis — host sets shared emojis
+app.post('/api/emojis', (req, res) => {
+  const { emojis } = req.body;
+  if (!Array.isArray(emojis) || emojis.length === 0) {
+    return res.status(400).json({ error: 'emojis must be a non-empty array' });
+  }
+  const db = readDB();
+  db.emojis = emojis;
+  try {
+    writeDB(db);
+  } catch {
+    return res.status(500).json({ error: 'Failed to save data' });
+  }
+  res.json({ emojis: db.emojis });
+});
+
 // POST /api/reset — reset game
 app.post('/api/reset', (req, res) => {
-  const fresh = { phase: 'submission', stories: [], votes: [] };
+  const fresh = { phase: 'submission', stories: [], votes: [], emojis: [] };
   try {
     writeDB(fresh);
   } catch {

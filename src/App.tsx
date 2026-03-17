@@ -35,6 +35,7 @@ const initialState: AppState = {
 };
 
 function App() {
+  const isHost = new URLSearchParams(window.location.search).get('host') === 'true';
   const [roundKey, setRoundKey] = useState(0);
   const [authorName, setAuthorName] = useState<string>(() => localStorage.getItem('mp-name') || '');
   const [voterId] = useState<string>(() => {
@@ -162,6 +163,22 @@ function App() {
     setState((prev) => ({ ...prev, story }));
   }, [setState]);
 
+  // Lock emojis for everyone
+  const handleLockEmojis = useCallback(() => {
+    fetch('/api/emojis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ emojis: state.emojis }),
+    }).catch(() => {});
+  }, [state.emojis]);
+
+  // Handle shared emojis pushed from backend (non-host only)
+  const handleSharedEmojis = useCallback((emojis: string[]) => {
+    if (!isHost) {
+      setState((prev) => ({ ...prev, emojis }));
+    }
+  }, [isHost, setState]);
+
   // Mark story done - trigger confetti
   const handleMarkDone = useCallback(() => {
     confetti({
@@ -260,11 +277,13 @@ function App() {
             emojiCount={state.emojiCount}
             animating={animating}
             markDoneEnabled={(() => { const w = state.story.trim().split(/\s+/).filter(Boolean).length; return w >= MIN_WORDS && w <= MAX_WORDS; })()}
+            isHost={isHost}
             onToggleLock={handleToggleLock}
             onShuffle={handleShuffle}
             onShuffleAll={handleShuffleAll}
             onChangeCount={handleChangeCount}
             onMarkDone={handleMarkDone}
+            onLockEmojis={handleLockEmojis}
           />
 
           <Timer
@@ -294,6 +313,7 @@ function App() {
             voterId={voterId}
             storyText={state.story}
             emojis={state.emojis}
+            onSharedEmojis={handleSharedEmojis}
           />
 
           <Toolbar onNewRound={handleNewRound} />
