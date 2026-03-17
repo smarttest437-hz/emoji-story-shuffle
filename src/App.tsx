@@ -35,6 +35,7 @@ const initialState: AppState = {
 };
 
 function App() {
+  const [roundKey, setRoundKey] = useState(0);
   const [authorName, setAuthorName] = useState<string>(() => localStorage.getItem('mp-name') || '');
   const [voterId] = useState<string>(() => {
     let id = localStorage.getItem('mp-voter-id');
@@ -211,6 +212,8 @@ function App() {
         timerSeconds: 90,
         timerRunning: false,
       }));
+      fetch('/api/reset', { method: 'POST' }).catch(() => {});
+      setRoundKey((k) => k + 1);
     }
   }, [setState, state.emojiCount]);
 
@@ -285,6 +288,7 @@ function App() {
           />
 
           <MultiplayerPanel
+            key={roundKey}
             authorName={authorName}
             voterId={voterId}
             storyText={state.story}
