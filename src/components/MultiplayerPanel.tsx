@@ -1,0 +1,212 @@
+import React, { useEffect, useState, useCallback } from 'react';
+
+type Phase = 'submission' | 'voting' | 'results';
+
+interface Story {
+  id: string;
+  author: string;
+  text: string;
+  emojis: string[];
+}
+
+interface Vote {
+  voterId: string;
+  storyId: string;
+}
+
+interface MultiplayerPanelProps {
+  authorName: string;
+  voterId: string;
+  storyText: string;
+  emojis: string[];
+}
+
+export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
+  authorName,
+  voterId,
+  storyText,
+  emojis,
+}) => {
+  const [phase, setPhase] = useState<Phase>('submission');
+  const [stories, setStories] = useState<Story[]>([]);
+  const [votes, setVotes] = useState<Vote[]>([]);
+  const [connecting, setConnecting] = useState<boolean>(true);
+  const [submitted, setSubmitted] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string>('');
+
+  const isHost =
+    new URLSearchParams(window.location.search).get('host') === 'true';
+
+  const hasVoted = votes.some((v) => v.voterId === voterId);
+
+  const fetchState = useCallback(async () => {
+    try {
+      const res = await fetch('/api/state');
+      if (!res.ok) throw new Error('Non-OK response');
+      const data = await res.json();
+      setPhase(data.phase);
+      setStories(data.stories);
+      setVotes(data.votes);
+      setConnecting(false);
+    } catch {
+      setConnecting(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchState();
+    const interval = setInterval(fetchState, 3000);
+    return () => clearInterval(interval);
+  }, [fetchState]);
+
+  const handleSubmit = async () => {
+    setSubmitError('');
+    try {
+      const res = await fetch('/api/stories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ author: authorName, text: storyText, emojis }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setSubmitError(err.message ?? 'Failed to submit story.');
+        return;
+      }
+      setSubmitted(true);
+      fetchState();
+    } catch {
+      setSubmitError('Network error. Please try again.');
+    }
+  };
+
+  const handleVote = async (storyId: string) => {
+    try {
+      const res = await fetch('/api/votes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ voterId, storyId }),
+      });
+      if (res.status === 409) {
+        fetchState();
+        return;
+      }
+      if (!res.ok) return;
+      fetchState();
+    } catch {
+      // silently ignore vote errors
+    }
+  };
+
+  const changePhase = async (p: Phase) => {
+    await fetch('/api/phase', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phase: p }),
+    });
+    fetchState();
+  };
+
+  const handleReset = async () => {
+    await fetch('/api/reset', { method: 'POST' });
+    setSubmitted(false);
+    fetchState();
+  };
+
+  const maxVotes = Math.max(
+    ...stories.map((s) => votes.filter((v) => v.storyId === s.id).length),
+    0
+  );
+
+  const renderStoryList = () => (
+    <div className="story-list">
+      {stories.map((story) => {
+        const voteCount = votes.filter((v) => v.storyId === story.id).length;
+        const isWinner =
+          phase === 'results' && voteCount === maxVotes && maxVotes > 0;
+        return (
+          <div
+            key={story.id}
+            className={`story-card${isWinner ? ' story-card--winner' : ''}`}
+          >
+            <div className="story-card__emojis">{story.emojis.join(' ')}</div>
+            <div className="story-card__author">{story.author}</div>
+            <div className="story-card__text">{story.text}</div>
+            {phase === 'results' && (
+              <div className="story-card__vote-count">
+                {voteCount} vote{voteCount !== 1 ? 's' : ''}
+              </div>
+            )}
+            {phase === 'voting' && !hasVoted && (
+              <button
+                className="vote-btn"
+                onClick={() => handleVote(story.id)}
+              >
+                Vote
+              </button>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  const renderPhaseContent = () => {
+    if (phase === 'submission') {
+      return (
+        <>
+          <h3>Stories</h3>
+          {!submitted ? (
+            <>
+              <button className="mp-submit-btn" onClick={handleSubmit}>
+                Submit Story
+              </button>
+              {submitError && <p className="mp-submit-error">{submitError}</p>}
+            </>
+          ) : (
+            <p>Story submitted!</p>
+          )}
+          {renderStoryList()}
+        </>
+      );
+    }
+
+    if (phase === 'voting') {
+      return (
+        <>
+          <h3>Stories</h3>
+          {hasVoted && <p className="mp-voted-indicator">Voted!</p>}
+          {renderStoryList()}
+        </>
+      );
+    }
+
+    if (phase === 'results') {
+      return (
+        <>
+          <h3>Stories</h3>
+          {renderStoryList()}
+        </>
+      );
+    }
+
+    return null;
+  };
+
+  return (
+    <div className="multiplayer-panel">
+      <h3>Multiplayer</h3>
+      {isHost && (
+        <div className="host-controls">
+          <button onClick={() => changePhase('voting')}>Open Voting</button>
+          <button onClick={() => changePhase('results')}>Show Results</button>
+          <button onClick={handleReset}>Reset</button>
+        </div>
+      )}
+      {connecting ? (
+        <p className="mp-connecting">Connecting...</p>
+      ) : (
+        renderPhaseContent()
+      )}
+    </div>
+  );
+};
