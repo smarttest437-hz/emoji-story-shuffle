@@ -1,1 +1,17 @@
-{ "phase": "submission", "stories": [], "votes": [], "emojis": [] }
+{
+  "phase": "voting",
+  "stories": [
+    {
+      "id": "32a07a52-8e48-4bdc-9a2e-1e2ad39f3d00",
+      "author": "hattie",
+      "text": "I live in a tent and hear grasshopper singing beside me. A bunch of friend are playing...",
+      "emojis": [
+        "🎯",
+        "🈵",
+        "➡️"
+      ]
+    }
+  ],
+  "votes": [],
+  "emojis": []
+}
