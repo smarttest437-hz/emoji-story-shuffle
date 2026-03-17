@@ -75,7 +75,7 @@ export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        setSubmitError(err.message ?? 'Failed to submit story.');
+        setSubmitError(err.error ?? 'Failed to submit story.');
         return;
       }
       setSubmitted(true);
