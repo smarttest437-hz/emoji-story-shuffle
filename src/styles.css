@@ -710,3 +710,213 @@ textarea:focus-visible,
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ===== Multiplayer: Name Entry ===== */
+.name-entry {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 16px;
+  padding: 24px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.name-entry h2 {
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+.name-entry p {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.name-entry form {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.name-entry input[type="text"] {
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  min-width: 200px;
+}
+
+.name-entry input[type="text"]:focus {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.name-entry button {
+  padding: 10px 20px;
+  background: var(--accent-primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.name-entry button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== Multiplayer: Panel ===== */
+.multiplayer-panel {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  margin-top: 16px;
+}
+
+.multiplayer-panel h3 {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ===== Multiplayer: Host Controls ===== */
+.host-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.host-controls button {
+  padding: 6px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.host-controls button:hover {
+  background: var(--accent-primary);
+  color: #fff;
+  border-color: var(--accent-primary);
+}
+
+/* ===== Multiplayer: Status messages ===== */
+.mp-connecting {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  padding: 16px 0;
+}
+
+.mp-error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  margin: 8px 0 0;
+}
+
+.mp-voted-indicator {
+  color: var(--success);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* ===== Multiplayer: Submit button ===== */
+.mp-submit-btn {
+  padding: 8px 18px;
+  background: var(--accent-primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.mp-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== Multiplayer: Story list ===== */
+.story-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.story-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.story-card--winner {
+  border-color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 10%, var(--bg-primary));
+}
+
+.story-card__emojis {
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+}
+
+.story-card__author {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.story-card__text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.story-card__vote-count {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+}
+
+/* ===== Multiplayer: Vote button ===== */
+.vote-btn {
+  align-self: flex-start;
+  padding: 5px 14px;
+  background: var(--accent-primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.vote-btn:hover {
+  background: var(--accent-secondary);
+}
+
+.vote-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
