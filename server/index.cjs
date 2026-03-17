@@ -38,7 +38,11 @@ app.post('/api/stories', (req, res) => {
   }
   const story = { id: randomUUID(), author, text, emojis: emojis || [] };
   db.stories.push(story);
-  writeDB(db);
+  try {
+    writeDB(db);
+  } catch {
+    return res.status(500).json({ error: 'Failed to save data' });
+  }
   res.json({ stories: db.stories });
 });
 
@@ -56,8 +60,16 @@ app.post('/api/votes', (req, res) => {
   if (alreadyVoted) {
     return res.status(409).json({ error: 'Already voted' });
   }
+  const storyExists = db.stories.some(s => s.id === storyId);
+  if (!storyExists) {
+    return res.status(400).json({ error: 'Story not found' });
+  }
   db.votes.push({ voterId, storyId });
-  writeDB(db);
+  try {
+    writeDB(db);
+  } catch {
+    return res.status(500).json({ error: 'Failed to save data' });
+  }
   res.json({ votes: db.votes });
 });
 
@@ -70,14 +82,22 @@ app.post('/api/phase', (req, res) => {
   }
   const db = readDB();
   db.phase = phase;
-  writeDB(db);
+  try {
+    writeDB(db);
+  } catch {
+    return res.status(500).json({ error: 'Failed to save data' });
+  }
   res.json({ phase: db.phase });
 });
 
 // POST /api/reset — reset game
 app.post('/api/reset', (req, res) => {
   const fresh = { phase: 'submission', stories: [], votes: [] };
-  writeDB(fresh);
+  try {
+    writeDB(fresh);
+  } catch {
+    return res.status(500).json({ error: 'Failed to save data' });
+  }
   res.json(fresh);
 });
 
