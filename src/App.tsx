@@ -175,19 +175,13 @@ function App() {
   // Handle shared emojis pushed from backend (non-host only)
   const handleSharedEmojis = useCallback((emojis: string[]) => {
     if (!isHost) {
-      setState((prev) => ({ ...prev, emojis }));
+      setState((prev) => {
+        if (prev.emojis.join(',') === emojis.join(',')) return prev;
+        return { ...prev, emojis };
+      });
     }
   }, [isHost, setState]);
 
-  // Mark story done - trigger confetti
-  const handleMarkDone = useCallback(() => {
-    confetti({
-      particleCount: 150,
-      spread: 100,
-      origin: { y: 0.5 },
-      colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'],
-    });
-  }, []);
 
   // Timer controls
   const handleTimerStart = useCallback(() => {
@@ -330,7 +324,6 @@ function App() {
             <li>🔒 Lock emojis you like, shuffle the rest</li>
             <li>⏱️ Start the timer — choose 90s, 3 min, or 5 min (optional)</li>
             <li>✍️ Write a {MIN_WORDS}-{MAX_WORDS} word story inspired by the emojis</li>
-            <li>🎉 Mark done when you're finished!</li>
           </ol>
         </div>
         <div className="keyboard-shortcuts">
