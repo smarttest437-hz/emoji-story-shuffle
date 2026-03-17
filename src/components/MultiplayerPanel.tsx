@@ -144,6 +144,9 @@ export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
                 Vote
               </button>
             )}
+            {phase === 'voting' && hasVoted && (
+              <span className="mp-voted-indicator">Voted!</span>
+            )}
           </div>
         );
       })}
@@ -174,7 +177,6 @@ export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
       return (
         <>
           <h3>Stories</h3>
-          {hasVoted && <p className="mp-voted-indicator">Voted!</p>}
           {renderStoryList()}
         </>
       );
