@@ -33,6 +33,9 @@ export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
   const [connecting, setConnecting] = useState<boolean>(true);
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string>('');
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [voteError, setVoteError] = useState<string>('');
+  const [pollError, setPollError] = useState<boolean>(false);
 
   const isHost =
     new URLSearchParams(window.location.search).get('host') === 'true';
@@ -48,8 +51,10 @@ export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
       setStories(data.stories);
       setVotes(data.votes);
       setConnecting(false);
+      setPollError(false);
     } catch {
       setConnecting(true);
+      setPollError(true);
     }
   }, []);
 
@@ -61,6 +66,7 @@ export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
 
   const handleSubmit = async () => {
     setSubmitError('');
+    setSubmitting(true);
     try {
       const res = await fetch('/api/stories', {
         method: 'POST',
@@ -76,6 +82,8 @@ export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
       fetchState();
     } catch {
       setSubmitError('Network error. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -90,10 +98,14 @@ export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
         fetchState();
         return;
       }
-      if (!res.ok) return;
+      if (!res.ok) {
+        setVoteError('Failed to submit vote. Please try again.');
+        return;
+      }
+      setVoteError('');
       fetchState();
     } catch {
-      // silently ignore vote errors
+      setVoteError('Failed to submit vote. Please try again.');
     }
   };
 
@@ -160,8 +172,8 @@ export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
           <h3>Stories</h3>
           {!submitted ? (
             <>
-              <button className="mp-submit-btn" onClick={handleSubmit}>
-                Submit Story
+              <button className="mp-submit-btn" onClick={handleSubmit} disabled={submitting}>
+                {submitting ? 'Submitting...' : 'Submit Story'}
               </button>
               {submitError && <p className="mp-submit-error">{submitError}</p>}
             </>
@@ -178,6 +190,7 @@ export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
         <>
           <h3>Stories</h3>
           {renderStoryList()}
+          {voteError && <p className="mp-error">{voteError}</p>}
         </>
       );
     }
@@ -204,6 +217,7 @@ export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
           <button onClick={handleReset}>Reset</button>
         </div>
       )}
+      {pollError && !connecting && <p className="mp-connecting">Reconnecting...</p>}
       {connecting ? (
         <p className="mp-connecting">Connecting...</p>
       ) : (
