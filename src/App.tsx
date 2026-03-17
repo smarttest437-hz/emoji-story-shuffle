@@ -259,10 +259,12 @@ function App() {
             lockedIndices={new Set(state.lockedIndices)}
             emojiCount={state.emojiCount}
             animating={animating}
+            markDoneEnabled={(() => { const w = state.story.trim().split(/\s+/).filter(Boolean).length; return w >= MIN_WORDS && w <= MAX_WORDS; })()}
             onToggleLock={handleToggleLock}
             onShuffle={handleShuffle}
             onShuffleAll={handleShuffleAll}
             onChangeCount={handleChangeCount}
+            onMarkDone={handleMarkDone}
           />
 
           <Timer
@@ -284,7 +286,6 @@ function App() {
             minWords={MIN_WORDS}
             maxWords={MAX_WORDS}
             onStoryChange={handleStoryChange}
-            onMarkDone={handleMarkDone}
           />
 
           <MultiplayerPanel

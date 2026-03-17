@@ -6,7 +6,6 @@ interface StoryEditorProps {
   minWords: number;
   maxWords: number;
   onStoryChange: (story: string) => void;
-  onMarkDone: () => void;
 }
 
 export const StoryEditor: React.FC<StoryEditorProps> = ({
@@ -14,7 +13,6 @@ export const StoryEditor: React.FC<StoryEditorProps> = ({
   minWords,
   maxWords,
   onStoryChange,
-  onMarkDone,
 }) => {
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -80,14 +78,6 @@ export const StoryEditor: React.FC<StoryEditorProps> = ({
             aria-label="Export story as text file"
           >
             💾 Export
-          </button>
-          <button
-            className="btn btn-primary"
-            onClick={onMarkDone}
-            disabled={!isInRange}
-            aria-label="Mark story as done"
-          >
-            🎉 Mark Done
           </button>
         </div>
       </div>

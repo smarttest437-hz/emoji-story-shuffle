@@ -6,10 +6,12 @@ interface EmojiPanelProps {
   lockedIndices: Set<number>;
   emojiCount: 3 | 4 | 5;
   animating: boolean;
+  markDoneEnabled: boolean;
   onToggleLock: (index: number) => void;
   onShuffle: () => void;
   onShuffleAll: () => void;
   onChangeCount: (count: 3 | 4 | 5) => void;
+  onMarkDone: () => void;
 }
 
 export const EmojiPanel: React.FC<EmojiPanelProps> = ({
@@ -17,10 +19,12 @@ export const EmojiPanel: React.FC<EmojiPanelProps> = ({
   lockedIndices,
   emojiCount,
   animating,
+  markDoneEnabled,
   onToggleLock,
   onShuffle,
   onShuffleAll,
   onChangeCount,
+  onMarkDone,
 }) => {
   return (
     <div className="emoji-panel">
@@ -73,6 +77,14 @@ export const EmojiPanel: React.FC<EmojiPanelProps> = ({
             aria-label="Regenerate all emojis"
           >
             🔄 Shuffle All
+          </button>
+          <button
+            className="btn btn-primary"
+            onClick={onMarkDone}
+            disabled={!markDoneEnabled}
+            aria-label="Mark story as done"
+          >
+            🎉 Mark Done
           </button>
         </div>
       </div>
