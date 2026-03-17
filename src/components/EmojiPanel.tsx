@@ -86,14 +86,6 @@ export const EmojiPanel: React.FC<EmojiPanelProps> = ({
               </button>
               <button
                 className="btn btn-primary"
-                onClick={onMarkDone}
-                disabled={!markDoneEnabled}
-                aria-label="Mark story as done"
-              >
-                🎉 Mark Done
-              </button>
-              <button
-                className="btn btn-primary"
                 onClick={onLockEmojis}
                 aria-label="Lock emojis for all players"
               >
@@ -124,6 +116,19 @@ export const EmojiPanel: React.FC<EmojiPanelProps> = ({
       {isHost && (
         <div className="keyboard-hint">
           <small>💡 Tip: Lock emojis you want to keep, then shuffle the rest!</small>
+        </div>
+      )}
+
+      {!isHost && emojis.length > 0 && (
+        <div className="shuffle-buttons" style={{ marginTop: '12px' }}>
+          <button
+            className="btn btn-primary"
+            onClick={onMarkDone}
+            disabled={!markDoneEnabled}
+            aria-label="Mark story as done"
+          >
+            🎉 Mark Done
+          </button>
         </div>
       )}
     </div>

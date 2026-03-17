@@ -239,7 +239,7 @@ function App() {
     setState((prev) => ({ ...prev, darkMode: !prev.darkMode }));
   }, [setState]);
 
-  if (!authorName) {
+  if (!authorName && !isHost) {
     return (
       <div className="name-entry">
         <h2>Welcome to Emoji Story Shuffle!</h2>
@@ -286,26 +286,30 @@ function App() {
             onLockEmojis={handleLockEmojis}
           />
 
-          <Timer
-            seconds={state.timerSeconds}
-            isRunning={state.timerRunning}
-            maxSeconds={state.timerDuration}
-            selectedDuration={state.timerDuration}
-            onDurationChange={handleTimerDurationChange}
-            onTick={handleTimerTick}
-            onStart={handleTimerStart}
-            onPause={handleTimerPause}
-            onReset={handleTimerReset}
-          />
+          {isHost && (
+            <Timer
+              seconds={state.timerSeconds}
+              isRunning={state.timerRunning}
+              maxSeconds={state.timerDuration}
+              selectedDuration={state.timerDuration}
+              onDurationChange={handleTimerDurationChange}
+              onTick={handleTimerTick}
+              onStart={handleTimerStart}
+              onPause={handleTimerPause}
+              onReset={handleTimerReset}
+            />
+          )}
         </div>
 
         <div className="right-panel">
-          <StoryEditor
-            story={state.story}
-            minWords={MIN_WORDS}
-            maxWords={MAX_WORDS}
-            onStoryChange={handleStoryChange}
-          />
+          {!isHost && (
+            <StoryEditor
+              story={state.story}
+              minWords={MIN_WORDS}
+              maxWords={MAX_WORDS}
+              onStoryChange={handleStoryChange}
+            />
+          )}
 
           <MultiplayerPanel
             key={roundKey}
@@ -316,7 +320,7 @@ function App() {
             onSharedEmojis={handleSharedEmojis}
           />
 
-          <Toolbar onNewRound={handleNewRound} />
+          {isHost && <Toolbar onNewRound={handleNewRound} />}
         </div>
       </main>
 

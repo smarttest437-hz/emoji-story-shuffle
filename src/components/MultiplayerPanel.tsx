@@ -179,7 +179,7 @@ export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
       return (
         <>
           <h3>Stories</h3>
-          {!submitted ? (
+          {!isHost && (!submitted ? (
             <>
               <button className="mp-submit-btn" onClick={handleSubmit} disabled={submitting}>
                 {submitting ? 'Submitting...' : 'Submit Story'}
@@ -188,7 +188,7 @@ export const MultiplayerPanel: React.FC<MultiplayerPanelProps> = ({
             </>
           ) : (
             <p>Story submitted!</p>
-          )}
+          ))}
           {renderStoryList()}
         </>
       );
