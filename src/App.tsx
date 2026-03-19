@@ -261,7 +261,12 @@ function App() {
 
   return (
     <div className="app">
-      <Header darkMode={state.darkMode} onToggleDarkMode={handleToggleDarkMode} authorName={authorName || undefined} />
+      <Header darkMode={state.darkMode} onToggleDarkMode={handleToggleDarkMode} />
+      {authorName && (
+        <div className="player-name-badge">
+          <span role="img" aria-label="player">👤</span> {authorName}
+        </div>
+      )}
 
       <main className="main-content">
         <div className="left-panel">

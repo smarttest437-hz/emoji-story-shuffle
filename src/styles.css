@@ -86,21 +86,20 @@ body {
   font-weight: 400;
 }
 
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.header-username {
+.player-name-badge {
+  position: fixed;
+  top: 16px;
+  right: 20px;
+  z-index: 1000;
   font-size: 0.95rem;
   font-weight: 600;
-  color: var(--text-secondary);
-  background: var(--bg-tertiary);
-  border: 2px solid var(--border-color);
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  border: 2px solid var(--accent-primary);
   border-radius: 20px;
   padding: 6px 14px;
   white-space: nowrap;
+  box-shadow: 0 2px 8px var(--shadow);
 }
 
 .theme-toggle {
