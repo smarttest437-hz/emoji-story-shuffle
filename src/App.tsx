@@ -261,7 +261,7 @@ function App() {
 
   return (
     <div className="app">
-      <Header darkMode={state.darkMode} onToggleDarkMode={handleToggleDarkMode} />
+      <Header darkMode={state.darkMode} onToggleDarkMode={handleToggleDarkMode} authorName={authorName || undefined} />
 
       <main className="main-content">
         <div className="left-panel">
