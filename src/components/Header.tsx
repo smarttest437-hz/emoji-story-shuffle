@@ -3,9 +3,10 @@ import React from 'react';
 interface HeaderProps {
   darkMode: boolean;
   onToggleDarkMode: () => void;
+  authorName?: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({ darkMode, onToggleDarkMode }) => {
+export const Header: React.FC<HeaderProps> = ({ darkMode, onToggleDarkMode, authorName }) => {
   return (
     <header className="app-header">
       <div className="header-content">
@@ -15,14 +16,19 @@ export const Header: React.FC<HeaderProps> = ({ darkMode, onToggleDarkMode }) =>
         </h1>
         <p className="subtitle">A Scrum Retrospective Icebreaker</p>
       </div>
-      <button
-        className="theme-toggle"
-        onClick={onToggleDarkMode}
-        aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-        title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-      >
-        {darkMode ? '☀️' : '🌙'}
-      </button>
+      <div className="header-actions">
+        {authorName && (
+          <span className="header-username">👤 {authorName}</span>
+        )}
+        <button
+          className="theme-toggle"
+          onClick={onToggleDarkMode}
+          aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {darkMode ? '☀️' : '🌙'}
+        </button>
+      </div>
     </header>
   );
 };
